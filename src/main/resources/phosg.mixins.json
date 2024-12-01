@@ -3,7 +3,8 @@
 	"package": "fr.quentin.phosg.mixin",
 	"compatibilityLevel": "JAVA_21",
 	"mixins": [
-		"ExampleMixin"
+		"TooltipDrawContextMixin",
+		"OrderedTextTooltipComponentAccessor"
 	],
 	"injectors": {
 		"defaultRequire": 1
