@@ -4,7 +4,8 @@
 	"compatibilityLevel": "JAVA_21",
 	"mixins": [
 		"TooltipDrawContextMixin",
-		"OrderedTextTooltipComponentAccessor"
+		"OrderedTextTooltipComponentAccessor",
+		"EntryListHighlightFixMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
