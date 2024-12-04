@@ -89,10 +89,12 @@ public abstract class ScreenTitleEnhancerMixin {
      */
     @Unique
     private void calculateRenderInfo(DrawContext context) {
-        shouldRenderTitle = originalTitle != null && titleStayTicks > 0;
+        if (originalTitle == null || context == null) return;
+        shouldRenderTitle = titleStayTicks > 0;
         if (shouldRenderTitle) {
             ScreenConfig config = PhosgClient.getConfig();
             TextRenderer textRenderer = getTextRenderer();
+            if (textRenderer == null) return;
 
             int titleWidth = textRenderer.getWidth(originalTitle);
             calculateTitleRenderDetails(context, titleRenderInfo, config.preferredTitleScale, titleWidth, config);
@@ -116,15 +118,23 @@ public abstract class ScreenTitleEnhancerMixin {
     @Unique
     private void calculateTitleRenderDetails(DrawContext context, RenderPositionInfo renderInfo,
                                              float initialScale, int textWidth, ScreenConfig config) {
-        int screenWidth = context.getScaledWindowWidth();
-        int screenHeight = context.getScaledWindowHeight();
+        int screenWidth = Math.max(context.getScaledWindowWidth(), 1);
+        int screenHeight = Math.max(context.getScaledWindowHeight(), 1);
 
-        float renderScale = initialScale;
-        int renderAreaWidth = screenWidth - config.marginLeft - config.marginRight;
-        int renderAreaWidthWithSidebar = renderAreaWidth - sidebarWidth;
+        int renderAreaWidth = Math.max(screenWidth - config.marginLeft - config.marginRight, 1);
+        int renderAreaWidthWithSidebar = Math.max(renderAreaWidth - sidebarWidth, 1);
+
+        float renderScale = calculateOptimalScale(textWidth, renderAreaWidthWithSidebar, config.contentAlwaysFitsScreen);
 
         if (config.screenDisplayMode == ScreenDisplayMode.FADE) {
-            renderAreaWidthWithSidebar -= sidebarWidth;
+            renderAreaWidthWithSidebar -= Math.max(sidebarWidth, 0);
+        }
+
+        if (renderAreaWidth < 10 || renderAreaWidthWithSidebar < 10) {
+            renderInfo.scale = 0.5F;
+            renderInfo.x = (float) screenWidth / 2;
+            renderInfo.y = (float) screenHeight / 2;
+            return;
         }
 
         boolean exceedsBoundary = false;
@@ -161,6 +171,20 @@ public abstract class ScreenTitleEnhancerMixin {
         renderInfo.x = titlePosX;
         renderInfo.y = titlePosY;
         renderInfo.scale = renderScale;
+    }
+
+    /**
+     * Calculate the optimal scale for the text based on the render area width and content fitting preference.
+     *
+     * @param textWidth The width of the text.
+     * @param renderAreaWidth The width of the render area.
+     * @param contentAlwaysFitsScreen Whether the content should always fit the screen.
+     * @return The optimal scale for the text.
+     */
+    @Unique
+    private float calculateOptimalScale(int textWidth, int renderAreaWidth, boolean contentAlwaysFitsScreen) {
+        if (!contentAlwaysFitsScreen) return 1.0F;
+        return Math.min(1.0F, (float) renderAreaWidth / textWidth);
     }
 
     /**
@@ -210,6 +234,12 @@ public abstract class ScreenTitleEnhancerMixin {
         }
     }
 
+    /**
+     * Calculate the alpha value for the title rendering based on the tick delta.
+     *
+     * @param tickDelta The tick delta.
+     * @return The alpha value for the title rendering.
+     */
     private int getAlpha(float tickDelta) {
         float ticksLeft = (float)titleStayTicks - tickDelta;
         int alpha = 255;
@@ -267,13 +297,7 @@ public abstract class ScreenTitleEnhancerMixin {
      *
      * @param args The method arguments.
      */
-    @ModifyArgs(
-            method = "method_55440",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/DrawContext;fill(IIIII)V"
-            )
-    )
+    @ModifyArgs(method = "method_55440", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;fill(IIIII)V"))
     private void modifySidebarBackground(Args args) {
         if (sidebarWidth == -1) {
             int x1 = args.get(0);
@@ -289,13 +313,7 @@ public abstract class ScreenTitleEnhancerMixin {
      * @param color The original color.
      * @return The adjusted color.
      */
-    @ModifyArg(
-            method = "method_55440",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/DrawContext;drawText(Lnet/minecraft/client/font/TextRenderer;Lnet/minecraft/text/Text;IIIZ)I"
-            ), index = 4
-    )
+    @ModifyArg(method = "method_55440", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;drawText(Lnet/minecraft/client/font/TextRenderer;Lnet/minecraft/text/Text;IIIZ)I"), index = 4)
     private int modifyScoreboardTextColor(int color) {
         return getAdjustedScoreboardColor(color);
     }
