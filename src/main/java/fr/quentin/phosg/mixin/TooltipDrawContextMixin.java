@@ -1,6 +1,6 @@
 package fr.quentin.phosg.mixin;
 
-import fr.quentin.phosg.helper.TooltipFixHelper;
+import fr.quentin.phosg.helper.TooltipAdjustmentHelper;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
@@ -46,7 +46,7 @@ public abstract class TooltipDrawContextMixin {
      */
     @Inject(method = "drawTooltip(Lnet/minecraft/client/font/TextRenderer;Ljava/util/List;IILnet/minecraft/client/gui/tooltip/TooltipPositioner;)V", at = @At(value = "HEAD"))
     public void adjustTooltip(TextRenderer textRenderer, List<TooltipComponent> components, int x, int y, TooltipPositioner positioner, CallbackInfo ci) {
-        TooltipFixHelper.adjustTooltipComponents(components, textRenderer, x, getScaledWindowWidth());
+        TooltipAdjustmentHelper.adjustTooltipComponents(components, textRenderer, x, getScaledWindowWidth());
     }
 
     /**
@@ -60,6 +60,6 @@ public abstract class TooltipDrawContextMixin {
      */
     @ModifyVariable(method = "drawTooltip(Lnet/minecraft/client/font/TextRenderer;Ljava/util/List;IILnet/minecraft/client/gui/tooltip/TooltipPositioner;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/util/math/MatrixStack;push()V"), index = 11)
     public int adjustRenderX(int value, TextRenderer textRenderer, List<TooltipComponent> components, int x) {
-        return TooltipFixHelper.adjustRenderX(components, textRenderer, x);
+        return TooltipAdjustmentHelper.adjustRenderX(components, textRenderer, x);
     }
 }

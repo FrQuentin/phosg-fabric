@@ -5,7 +5,7 @@ import net.minecraft.text.*;
 /**
  * Converts OrderedText to Text by visiting each character and applying the style.
  */
-public class OrderedTextConverter implements CharacterVisitor {
+public class OrderedTextToTextConverter implements CharacterVisitor {
     private final MutableText text = Text.empty();
 
     @Override
@@ -31,7 +31,7 @@ public class OrderedTextConverter implements CharacterVisitor {
      * @return The converted Text.
      */
     public static Text convert(OrderedText orderedText) {
-        OrderedTextConverter visitor = new OrderedTextConverter();
+        OrderedTextToTextConverter visitor = new OrderedTextToTextConverter();
         orderedText.accept(visitor);
         return visitor.getText();
     }

@@ -1,6 +1,6 @@
 package fr.quentin.phosg.helper;
 
-import fr.quentin.phosg.converter.OrderedTextConverter;
+import fr.quentin.phosg.converter.OrderedTextToTextConverter;
 import fr.quentin.phosg.mixin.OrderedTextTooltipComponentAccessor;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.tooltip.OrderedTextTooltipComponent;
@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * Helper class for fixing tooltips to ensure they do not run off the screen.
  */
-public class TooltipFixHelper {
+public class TooltipAdjustmentHelper {
     private static boolean shouldFlip = false;
 
     /**
@@ -82,7 +82,7 @@ public class TooltipFixHelper {
     private static void handleLongLines(List<TooltipComponent> components, TextRenderer textRenderer, int maxSize) {
         for (int i = 0; i < components.size(); i++) {
             if (components.get(i) instanceof OrderedTextTooltipComponent orderedTextTooltipComponent) {
-                Text text = OrderedTextConverter.convert(((OrderedTextTooltipComponentAccessor) orderedTextTooltipComponent).getText());
+                Text text = OrderedTextToTextConverter.convert(((OrderedTextTooltipComponentAccessor) orderedTextTooltipComponent).getText());
                 if (text.getSiblings().isEmpty()) continue;
 
                 List<TooltipComponent> wrapped = textRenderer.wrapLines(text, maxSize).stream().map(TooltipComponent::of).toList();
@@ -100,7 +100,7 @@ public class TooltipFixHelper {
     private static void handleNewLines(List<TooltipComponent> components) {
         for (int i = 0; i < components.size(); i++) {
             if (components.get(i) instanceof OrderedTextTooltipComponent orderedTextTooltipComponent) {
-                Text text = OrderedTextConverter.convert(((OrderedTextTooltipComponentAccessor) orderedTextTooltipComponent).getText());
+                Text text = OrderedTextToTextConverter.convert(((OrderedTextTooltipComponentAccessor) orderedTextTooltipComponent).getText());
 
                 List<Text> children = text.getSiblings();
                 for (int j = 0; j < children.size() - 1; j++) {
