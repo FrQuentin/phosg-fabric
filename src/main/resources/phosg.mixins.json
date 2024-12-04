@@ -6,7 +6,8 @@
 		"TooltipDrawContextMixin",
 		"OrderedTextTooltipComponentAccessor",
 		"EntryListHighlightFixMixin",
-		"ScreenTitleEnhancerMixin"
+		"ScreenTitleEnhancerMixin",
+		"ClearTitleOnDisconnectMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
